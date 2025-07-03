@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECO Matrix AI Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chatbot-container {
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            background: white;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            margin: 0 auto;
+        }
+        
+        .chat-header {
+            background: linear-gradient(90deg, #2E8B57, #4682B4);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .chat-header h2 {
+            font-size: 1.2rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .chat-header p {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+        
+        .chat-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .message {
+            padding: 0.75rem;
+            border-radius: 8px;
+            max-width: 85%;
+            word-wrap: break-word;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .user-message {
+            background-color: #e3f2fd;
+            border-left: 3px solid #4682B4;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        
+        .bot-message {
+            background-color: #f1f8e9;
+            border-left: 3px solid #2E8B57;
+            align-self: flex-start;
+        }
+        
+        .message-header {
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+            color: #333;
+            font-size: 0.8rem;
+        }
+        
+        .message-content {
+            white-space: pre-wrap;
+        }
+        
+        .input-section {
+            border-top: 1px solid #e9ecef;
+            padding: 0.75rem;
+            background: #f8f9fa;
+        }
+        
+        .input-form {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 0.6rem;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .message-input:focus {
+            border-color: #2E8B57;
+        }
+        
+        .send-button {
+            background: linear-gradient(90deg, #2E8B57, #4682B4);
+            color: white;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: transform 0.2s;
+        }
+        
+        .send-button:hover {
+            transform: translateY(-1px);
+        }
+        
+        .send-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .clearChatBtn{
+            background: linear-gradient(90deg, #c99090, #bb7171);
+            color: rgb(240, 19, 19);
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: transform 0.2s;
+        }
+        #clearChatBtn svg:hover path {
+        fill: #ff5252;
+        }
+        .faq-section {
+            background: white;
+            border-top: 1px solid #e9ecef;
+            max-height: 40vh;
+            overflow-y: auto;
+        }
+        
+        .faq-header {
+            background: #f8f9fa;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: bold;
+            color: #2E8B57;
+            font-size: 1rem;
+        }
+        
+        .faq-item {
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .faq-question {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: none;
+            border: none;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #333;
+            transition: background-color 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .faq-question:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .faq-question.active {
+            background-color: #e8f5e8;
+            color: #2E8B57;
+        }
+        
+        .faq-icon {
+            transition: transform 0.3s;
+            font-size: 0.8rem;
+        }
+        
+        .faq-question.active .faq-icon {
+            transform: rotate(180deg);
+        }
+        
+        .faq-dropdown {
+            display: none;
+            background: #f9f9f9;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .faq-dropdown.show {
+            display: block;
+        }
+        
+        .faq-sub-item {
+            padding: 0.5rem 1.5rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #555;
+            transition: background-color 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .faq-sub-item:hover {
+            background-color: #e9ecef;
+            border-left-color: #2E8B57;
+        }
+        
+        .footer {
+            background: #2E8B57;
+            color: white;
+            text-align: center;
+            padding: 0.75rem;
+            font-size: 0.75rem;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 0.75rem;
+            color: #666;
+            font-size: 0.85rem;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #2E8B57;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Scrollbar styling */
+        .chat-messages::-webkit-scrollbar,
+        .faq-section::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-track,
+        .faq-section::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        .chat-messages::-webkit-scrollbar-thumb,
+        .faq-section::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-thumb:hover,
+        .faq-section::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+<body>
+    <div class="chatbot-container">
+        <!-- Chat Header -->
+        <div class="chat-header">
+            <h2>🤖 ECO Matrix AI</h2>
+            <p>Energy Modeling Assistant</p>
+        </div>
+        
+        <!-- Chat Section -->
+        <div class="chat-section">
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will be added here -->
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <span>AI is thinking...</span>
+            </div>
+            
+            <div class="input-section">
+                <form class="input-form" id="messageForm">
+                    <input type="text" class="message-input" id="messageInput" 
+                           placeholder="Ask me anything..." required>
+                    <button type="submit" class="send-button" id="sendButton">Send</button>
+                    <button type="button" class="clearChatBtn" id="clearChatBtn" title="Clear Conversation" >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24">
+                        <path fill="#888" d="M9 3V4H4V6H5V19C5 20.1 5.9 21 7 21H17C18.1 21 19 20.1 19 19V6H20V4H15V3H9ZM7 6H17V19H7V6ZM9 8V17H11V8H9ZM13 8V17H15V8H13Z"/>
+                    </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- FAQ Section -->
+<div class="faq-section">
+  <div class="faq-header">📋 FAQs</div>
+
+  <!-- Services -->
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggleFAQ('services')">
+      <span>Our Services</span>
+      <span class="faq-icon">▼</span>
+    </button>
+    <div class="faq-dropdown" id="services-dropdown">
+      <div class="faq-sub-item" onclick="sendFAQMessage('Simple Box Modeling')">
+        Simple Box Modeling
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('Code Compliance Modeling')">
+        Code Compliance Modeling
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('Design Optimization through ECO Matrix')">
+        Design Optimization through ECO Matrix
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('Daylighting Simulations')">
+        Daylighting Simulations
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('Heating and Cooling Load Calculations')">
+        Heating and Cooling Load Calculations
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('CFD Studies')">
+        CFD Studies
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('Explicit HVAC System Modeling')">
+        Explicit HVAC System Modeling
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('Calibrated Simulations')">
+        Calibrated Simulations
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('Building Information Modeling – MEP')">
+        Building Information Modeling – MEP
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('Complete Solar PV Solutions')">
+        Complete Solar PV Solutions
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('What is the new ECO Matrix ERV Tool')">
+        What is the new ECO Matrix ERV Tool
+      </div>
+    </div>
+  </div>
+
+  <!-- Energy Modeling -->
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggleFAQ('energy')">
+      <span>Energy Modeling</span>
+      <span class="faq-icon">▼</span>
+    </button>
+    <div class="faq-dropdown" id="energy-dropdown">
+      <div class="faq-sub-item" onclick="sendFAQMessage('What is energy modeling?')">
+        What is energy modeling?
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('How can energy modeling reduce operational costs?')">
+        How can energy modeling reduce operational costs?
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('Which tools do you use?')">
+        Which tools do you use?
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('What information do you need to start a project?')">
+        What information do you need to start a project?
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('Do you support international clients?')">
+        Do you support international clients?
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('How long does a modeling study take?')">
+        How long does a modeling study take?
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('What is the process from start to finish?')">
+        What is the process from start to finish?
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('What certifications do you support?')">
+        What certifications do you support?
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('Can you model mixed-use buildings or hospitals?')">
+        Can you model mixed-use buildings or hospitals?
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact & Project Onboarding -->
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggleFAQ('contact')">
+      <span>Contact & Project Onboarding</span>
+      <span class="faq-icon">▼</span>
+    </button>
+    <div class="faq-dropdown" id="contact-dropdown">
+      <div class="faq-sub-item" onclick="sendFAQMessage('Request a proposal or quotation')">
+        Request a proposal or quotation
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('Upload project details')">
+        Upload project details
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('Ask for sample reports')">
+        Ask for sample reports
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('Schedule a technical meeting')">
+        Schedule a technical meeting
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('Discuss timelines, pricing & deliverables')">
+        Discuss timelines, pricing & deliverables
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('Contact Information')">
+        Contact Information
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('Pricing Information')">
+        Pricing Information
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('Technical Support')">
+        Technical Support
+      </div>
+    </div>
+  </div>
+
+  <!-- About Company -->
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggleFAQ('company')">
+      <span>About Company</span>
+      <span class="faq-icon">▼</span>
+    </button>
+    <div class="faq-dropdown" id="company-dropdown">
+      <div class="faq-sub-item" onclick="sendFAQMessage('Company Info')">
+        Company Info
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('Our Mission')">
+        Our Mission
+      </div>
+      <div class="faq-sub-item" onclick="sendFAQMessage('Our Team')">
+        Our Team
+      </div>
+      
+    </div>
+  </div>
+</div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            © 2025 ECO Matrix Solutions
+        </div>
+    </div>
+    
+    <script>
+let isLoading = false;
+const messageForm = document.getElementById('messageForm');
+const messageInput = document.getElementById('messageInput');
+const chatMessages = document.getElementById('chatMessages');
+const loading = document.getElementById('loading');
+const sendButton = document.getElementById('sendButton');
+
+// Enhanced NLP and keyword mapping system
+const keywordMap = {
+  // Services keywords
+  'simple': ['Simple Box Modeling'],
+  'box': ['Simple Box Modeling'],
+  'modeling': ['Simple Box Modeling', 'Code Compliance Modeling', 'Explicit HVAC System Modeling', 'What is energy modeling?'],
+  'compliance': ['Code Compliance Modeling'],
+  'code': ['Code Compliance Modeling'],
+  'optimization': ['Design Optimization through ECO Matrix'],
+  'optimize': ['Design Optimization through ECO Matrix'],
+  'eco': ['Design Optimization through ECO Matrix', 'What is the new ECO Matrix ERV Tool'],
+  'matrix': ['Design Optimization through ECO Matrix', 'What is the new ECO Matrix ERV Tool'],
+  'daylight': ['Daylighting Simulations'],
+  'daylighting': ['Daylighting Simulations'],
+  'lighting': ['Daylighting Simulations'],
+  'heating': ['Heating and Cooling Load Calculations'],
+  'cooling': ['Heating and Cooling Load Calculations'],
+  'load': ['Heating and Cooling Load Calculations'],
+  'calculation': ['Heating and Cooling Load Calculations'],
+  'cfd': ['CFD Studies'],
+  'fluid': ['CFD Studies'],
+  'dynamics': ['CFD Studies'],
+  'airflow': ['CFD Studies'],
+  'hvac': ['Explicit HVAC System Modeling'],
+  'system': ['Explicit HVAC System Modeling'],
+  'explicit': ['Explicit HVAC System Modeling'],
+  'calibrated': ['Calibrated Simulations'],
+  'simulation': ['Calibrated Simulations', 'Daylighting Simulations'],
+  'bim': ['Building Information Modeling – MEP'],
+  'building': ['Building Information Modeling – MEP', 'What is energy modeling?'],
+  'information': ['Building Information Modeling – MEP'],
+  'mep': ['Building Information Modeling – MEP'],
+  'solar': ['Complete Solar PV Solutions'],
+  'pv': ['Complete Solar PV Solutions'],
+  'photovoltaic': ['Complete Solar PV Solutions'],
+  'erv': ['What is the new ECO Matrix ERV Tool'],
+  'energy': ['What is energy modeling?', 'How can energy modeling reduce operational costs?', 'What is the new ECO Matrix ERV Tool'],
+  'recovery': ['What is the new ECO Matrix ERV Tool'],
+  'ventilation': ['What is the new ECO Matrix ERV Tool'],
+  
+  // Energy modeling keywords
+  'reduce': ['How can energy modeling reduce operational costs?'],
+  'costs': ['How can energy modeling reduce operational costs?'],
+  'operational': ['How can energy modeling reduce operational costs?'],
+  'save': ['How can energy modeling reduce operational costs?'],
+  'savings': ['How can energy modeling reduce operational costs?'],
+  'tools': ['Which tools do you use?'],
+  'software': ['Which tools do you use?'],
+  'iesve': ['Which tools do you use?'],
+  'revit': ['Which tools do you use?'],
+  'information': ['What information do you need to start a project?'],
+  'need': ['What information do you need to start a project?'],
+  'start': ['What information do you need to start a project?'],
+  'project': ['What information do you need to start a project?'],
+  'international': ['Do you support international clients?'],
+  'clients': ['Do you support international clients?'],
+  'support': ['Do you support international clients?', 'What certifications do you support?'],
+  'global': ['Do you support international clients?'],
+  'worldwide': ['Do you support international clients?'],
+  'long': ['How long does a modeling study take?'],
+  'duration': ['How long does a modeling study take?'],
+  'time': ['How long does a modeling study take?'],
+  'timeline': ['How long does a modeling study take?'],
+  'process': ['What is the process from start to finish?'],
+  'workflow': ['What is the process from start to finish?'],
+  'steps': ['What is the process from start to finish?'],
+  'procedure': ['What is the process from start to finish?'],
+  'methodology': ['What is the process from start to finish?'],
+  'finish': ['What is the process from start to finish?'],
+  'certifications': ['What certifications do you support?'],
+  'leed': ['What certifications do you support?'],
+  'necb': ['What certifications do you support?'],
+  'ashrae': ['What certifications do you support?'],
+  'mixed': ['Can you model mixed-use buildings or hospitals?'],
+  'hospital': ['Can you model mixed-use buildings or hospitals?'],
+  'types': ['Can you model mixed-use buildings or hospitals?'],
+  'buildings': ['Can you model mixed-use buildings or hospitals?'],
+  
+  // Contact keywords
+  'proposal': ['Request a proposal or quotation'],
+  'quotation': ['Request a proposal or quotation'],
+  'quote': ['Request a proposal or quotation'],
+  'request': ['Request a proposal or quotation'],
+  'upload': ['Upload project details'],
+  'details': ['Upload project details'],
+  'sample': ['Ask for sample reports'],
+  'reports': ['Ask for sample reports'],
+  'examples': ['Ask for sample reports'],
+  'schedule': ['Schedule a technical meeting'],
+  'meeting': ['Schedule a technical meeting'],
+  'technical': ['Schedule a technical meeting'],
+  'discuss': ['Discuss timelines, pricing & deliverables'],
+  'pricing': ['Discuss timelines, pricing & deliverables', 'Pricing Information'],
+  'deliverables': ['Discuss timelines, pricing & deliverables'],
+  'contact': ['Contact Information'],
+  'phone': ['Contact Information'],
+  'email': ['Contact Information'],
+  'reach': ['Contact Information'],
+  
+  // Company keywords
+  'company': ['Company Info'],
+  'about': ['Company Info'],
+  'mission': ['Our Mission'],
+  'team': ['Our Team'],
+  'who': ['Our Team', 'Company Info'],
+  'staff': ['Our Team'],
+  'people': ['Our Team']
+};
+
+// Common word variations and synonyms
+const synonyms = {
+  'what': ['what', 'tell me', 'explain', 'describe', 'define'],
+  'how': ['how', 'what is the way', 'what method', 'process'],
+  'which': ['which', 'what', 'tell me about'],
+  'can': ['can', 'are you able', 'do you'],
+  'do': ['do', 'can', 'are you able'],
+  'info': ['info', 'information', 'details'],
+  'cost': ['cost', 'price', 'pricing', 'expense'],
+  'take': ['take', 'need', 'require'],
+  'use': ['use', 'utilize', 'employ'],
+  'get': ['get', 'obtain', 'receive'],
+  'help': ['help', 'assist', 'support'],
+  'provide': ['provide', 'offer', 'give'],
+  'service': ['service', 'services', 'offering'],
+  'work': ['work', 'operate', 'function']
+};
+
+// Text preprocessing function
+function preprocessText(text) {
+  return text.toLowerCase()
+    .replace(/[^\w\s]/g, ' ')  // Remove punctuation
+    .replace(/\s+/g, ' ')      // Multiple spaces to single
+    .trim()
+    .split(' ')
+    .filter(word => word.length > 1);  // Remove single characters
+}
+
+// Enhanced keyword matching function
+function findBestMatch(userInput) {
+  const words = preprocessText(userInput);
+  const matches = {};
+  
+  // Score matches based on keyword frequency and relevance
+  words.forEach(word => {
+    if (keywordMap[word]) {
+      keywordMap[word].forEach(response => {
+        matches[response] = (matches[response] || 0) + 1;
+      });
+    }
+    
+    // Check synonyms
+    Object.keys(synonyms).forEach(key => {
+      if (synonyms[key].includes(word)) {
+        if (keywordMap[key]) {
+          keywordMap[key].forEach(response => {
+            matches[response] = (matches[response] || 0) + 0.5;
+          });
+        }
+      }
+    });
+  });
+  
+  // Partial matching for compound words
+  Object.keys(keywordMap).forEach(keyword => {
+    words.forEach(word => {
+      if (word.includes(keyword) || keyword.includes(word)) {
+        if (word.length > 2 && keyword.length > 2) {
+          keywordMap[keyword].forEach(response => {
+            matches[response] = (matches[response] || 0) + 0.3;
+          });
+        }
+      }
+    });
+  });
+  
+  // Return the highest scoring match
+  if (Object.keys(matches).length > 0) {
+    return Object.keys(matches).reduce((a, b) => matches[a] > matches[b] ? a : b);
+  }
+  
+  return null;
+}
+
+// Intent recognition patterns
+const intentPatterns = {
+  greeting: /^(hi|hello|hey|good morning|good afternoon|good evening)/i,
+  thanks: /^(thank|thanks|appreciate)/i,
+  help: /^(help|assist|support)/i,
+  question: /^(what|how|when|where|which|why|can|do|does|is|are)/i
+};
+
+function formatMessage(content) {
+  return content
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/\n/g, '<br>');
+}
+
+function addMessage(role, content) {
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `message ${role}-message`;
+
+  const messageHeader = document.createElement('div');
+  messageHeader.className = 'message-header';
+  messageHeader.textContent = role === 'user' ? 'You:' : 'ECO Matrix AI:';
+
+  const messageContent = document.createElement('div');
+  messageContent.className = 'message-content';
+  messageContent.innerHTML = formatMessage(content);
+
+  messageDiv.appendChild(messageHeader);
+  messageDiv.appendChild(messageContent);
+  chatMessages.appendChild(messageDiv);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function toggleFAQ(category) {
+  const dropdown = document.getElementById(category + '-dropdown');
+  const question = dropdown.previousElementSibling;
+
+  document.querySelectorAll('.faq-dropdown').forEach(drop => {
+    if (drop !== dropdown) {
+      drop.classList.remove('show');
+      drop.previousElementSibling.classList.remove('active');
+    }
+  });
+  dropdown.classList.toggle('show');
+  question.classList.toggle('active');
+}
+
+function sendFAQMessage(label) {
+  if (isLoading) return;
+  sendMessage(label);
+}
+
+function getFAQResponse(message) {
+  const library = {
+    // SERVICES
+    "Simple Box Modeling": "**Simple Box Modeling**\n\nEarly-stage modeling for conceptual massing, orientation, and passive design analysis.",
+    "Code Compliance Modeling": "**Code Compliance Modeling**\n\nSimulation-based reports to meet NECB, ASHRAE 90.1, ECBC, and other local codes.",
+    "Design Optimization through ECO Matrix": "**Design Optimization through ECO Matrix**\n\nECO Matrix is a service based simulation and decision-support tool that enables design teams to evaluate thousands of building envelope, lighting, and HVAC combinations across multiple Key Performance Indicators (KPIs)—including energy use, capital cost, GHG emissions, and payback—using fewer than 100 simulations. It combines smart sampling, batch simulation, and interactive dashboards to help teams quickly identify the most cost-effective and sustainable design strategies.",
+    "Daylighting Simulations": "**Daylighting Simulations**\n\nDaylight penetration studies using Radiance to improve natural lighting and qualify for green building credits.",
+    "Heating and Cooling Load Calculations": "**Heating and Cooling Load Calculations**\n\nAccurate space-wise load breakdowns for proper HVAC sizing, using ASHRAE heat balance method via IESVE software.",
+    "CFD Studies": "**CFD Studies**\n\nComputational Fluid Dynamics studies for airflow, ventilation, and comfort analysis (internal and external).",
+    "Explicit HVAC System Modeling": "**Explicit HVAC System Modeling**\n\nDetailed modeling of VRF, DOAS, radiant, and large interconnected HVAC systems including control strategies.",
+    "Calibrated Simulations": "**Calibrated Simulations**\n\nPost-occupancy modeling calibrated to utility data to validate performance and identify savings.",
+    "Building Information Modeling – MEP": "**Building Information Modeling – MEP**\n\nRevit-based MEP BIM and CAD services to assist HVAC, electrical, plumbing, firefighting design. SCAN to BIM and as-builts available.",
+    "Complete Solar PV Solutions": "**Complete Solar PV Solutions**\n\nEnd-to-end solar design, layout, shading analysis, procurement support, and export readiness.",
+    "What is the new ECO Matrix ERV Tool": "**ECO Matrix ERV Tool**\n\nHelps engineers model and compare energy, cost, and carbon impacts of Energy Recovery Ventilation systems. Simulate preheat, post-heating cooling, humidification loads, and payback using real weather data and project-specific inputs.",
+    
+    // ENERGY MODELING
+    "What is energy modeling?": "**Q: What is energy modeling?**\n\nnergy modeling is the process of using computer-based simulation tools to predict a building’s energy consumption, thermal comfort, and environmental performance. It helps evaluate the impact of design choices on energy use, optimize systems before construction, comply with codes like NECB or ASHRAE 90.1, and support certifications like LEED or GRIHA. Models are created using inputs like geometry, usage patterns, climate, and mechanical systems.",
+    "How can energy modeling reduce operational costs?": "**Q: How can energy modeling reduce operational costs?**\n\nEnergy modeling allows you to test and compare various design and system options before construction. This helps identify the most energy-efficient and cost-effective strategies—reducing HVAC sizes, enhancing insulation, optimizing lighting, and improving controls. Over a building’s life, these decisions translate into significant energy savings and lower utility bills, while also helping qualify for incentives or certifications.",
+    "Which tools do you use?": "**Q: Which tools do you use?**\n\nWe use a variety of tools depending on the scope and needs of the project. Our go-to software is IESVE, but we also have experience with Design Builder, Revit, Radiance, eQuest, HAP and others as needed.",
+    "What information do you need to start a project?": "**Q: What information do you need to start?**\n\n•Architectural drawings (plans, sections, elevations)\n•Revit or CAD models (if available)\n•HVAC design brief\n•Owner’s Project Requirements (OPR)\n•Basis of Design (BOD)\n•Any other relevant documents (site context, occupancy schedules, lighting layouts, etc.)",
+    "Do you support international clients?": "**Q: Do you support international clients?**\n\nYes, we work with clients across the US, Canada, and India. Our team is experienced in handling international codes, climates, and time zones.",
+    "How long does a modeling study take?": "**Q: How long does a study take?**\n\nThe duration depends on the complexity and size of the project. It can range from as little as 1 week for simple modeling tasks to up to 4–6 weeks for complex, calibrated or certification-bound simulations.",
+    "What is the process from start to finish?": "**Q: What is the process?**\n\n1.Initial Discussion – We understand your project goals and scope.\n2.Data Collection – We request drawings, models, and design intent documents.\n3.Model Development – We build and refine the energy model based on design inputs.\n4.Analysis & Iteration – We simulate different options, generate results, and review with stakeholders.\n5.Reporting – Final results are documented for code compliance, optimization, or certification.\n6.Support – We remain available for clarifications, revisions, or coordination meetings.",
+    "What certifications do you support?": "**Q: What certifications do you support?**\n\nWe primarily work with LEED, NECB, and ASHRAE 90.1 compliance modeling. We also have the expertise to take on Part L (UK), GRIHA, IGBC, or other custom frameworks upon request.",
+    "Can you model mixed-use buildings or hospitals?": "**Q: Can you model mixed-use buildings or hospitals?**\n\n•Yes—schools\n•Multi-unit residential\n•Mixed-use buildings\n•Hospitals\n•Hotels\n•Offices\n•Malls\n•Daycares\n•Industrial and Warehouse spaces.",
+
+    // CONTACT & COMPANY
+    "Request a proposal or quotation": "**Request a Proposal:**\n\nContact Anup Rathi at 📧 anup@ecomatrix.io.",
+    "Upload project details": "**Upload Project Details:**\n\nReach out to 📧 anup@ecomatrix.io.",
+    "Ask for sample reports": "**Sample Reports:**\n\nWe don’t share full reports, but. We do not provide full sample reports to protect client confidentiality, but can offer insights in a meeting and are happy to explain our methodology or present anonymized extracts in meetings.",
+    "Schedule a technical meeting": "**Schedule Meeting:**\n\nEmail 📧 anup@ecomatrix.io time with a simulation expert.",
+    "Discuss timelines, pricing & deliverables": "**Timelines & Pricing:**\n\nDirect all inquiries to 📧 anup@ecomatrix.io.",
+    "Contact Information": "**Contact ECO Matrix:**\n\n📧 anup@ecomatrix.io\n📞 +1 (204) 894 0387\n🌐 [ecomatrix.io](https://ecomatrix.io)",
+    "Pricing Information": "**Pricing:**\n\nPricing depends on project scope, complexity, and timeline. Contact us for a detailed proposal.",
+    "Technical Support": "**Technical Support:**\n\nWe provide ongoing support for all modeling and consulting engagements.",
+    "Company Info": "**About ECO Matrix:**\n\nECO Matrix Solutions provides high-quality energy modeling and simulation services to support energy-efficient building design and regulatory compliance. We serve clients in Canada, the US, and India, with deep expertise in advanced building performance analysis tools and methods.",
+    "Our Mission": "**Our Mission:**\n\nLeading the quest to change the way new buildings are designed and constructed by prioritizing energy-efficiency while reducing capital cost to contribute towards green affordable economy by providing our innovative, affordable, intuitive, and personalized service that works to break the misconception that “efficient is always expensive”",
+    "Our Team": "**Our Team:**\n\nExpert energy modeling professionals and engineers with experience in diverse building types.",
+    
+  };
+
+
+  // 1. Try exact match first
+  if (library[message.trim()]) {
+    return library[message.trim()];
+  }
+
+  // 2. Try advanced keyword/partial match using findBestMatch
+  const bestMatch = findBestMatch(message);
+  if (bestMatch && library[bestMatch]) {
+    return library[bestMatch];
+  }
+
+  // 3. Fallback: try to find a partial match in the library keys
+  const msg = message.toLowerCase();
+  for (const key in library) {
+    if (msg.includes(key.toLowerCase().split(' ')[0])) {
+      return library[key];
+    }
+  }
+
+  // 4. Final fallback
+  return "I'm here to help! Please select an option above or ask your question about our services, modeling, or company.";
+}
+
+async function sendMessage(message) {
+  if (isLoading || !message.trim()) return;
+  isLoading = true;
+  loading.style.display = 'block';
+  sendButton.disabled = true;
+
+  addMessage('user', message);
+  messageInput.value = '';
+
+  setTimeout(() => {
+    const response = getFAQResponse(message);
+    addMessage('bot', response);
+    isLoading = false;
+    loading.style.display = 'none';
+    sendButton.disabled = false;
+    messageInput.focus();
+  }, 600);
+}
+
+messageForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const message = messageInput.value.trim();
+  if (message && !isLoading) {
+    sendMessage(message);
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  addMessage('bot', "Hello! I'm your ECO Matrix AI Assistant. How can I help you today?");
+  messageInput.focus();
+});
+
+// ...existing code...
+document.getElementById('clearChatBtn').addEventListener('click', () => {
+  chatMessages.innerHTML = '';
+  addMessage('bot', "Hello! I'm your ECO Matrix AI Assistant. How can I help you today?");
+});
+// ...existing code...
+</script>
+</body>
+</html>
