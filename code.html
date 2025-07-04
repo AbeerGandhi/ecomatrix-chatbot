@@ -31,7 +31,7 @@
         }
         
         .chat-header {
-            background: linear-gradient(90deg, #2E8B57, #4682B4);
+            background: #1363DF;
             color: white;
             padding: 1rem;
             text-align: center;
@@ -82,7 +82,7 @@
         
         .bot-message {
             background-color: #f1f8e9;
-            border-left: 3px solid #2E8B57;
+            border-left: 3px solid #1363DF;
             align-self: flex-start;
         }
         
@@ -119,11 +119,11 @@
         }
         
         .message-input:focus {
-            border-color: #2E8B57;
+            border-color: #1363DF;
         }
         
         .send-button {
-            background: linear-gradient(90deg, #2E8B57, #4682B4);
+            background: linear-gradient(90deg, #558ed8, #4682B4);
             color: white;
             border: none;
             padding: 0.6rem 1rem;
@@ -136,15 +136,17 @@
         .send-button:hover {
             transform: translateY(-1px);
         }
-        
+        .clearChatBtn:hover {
+            transform: translateY(-1px);
+        }
         .send-button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
         .clearChatBtn{
-            background: linear-gradient(90deg, #c99090, #bb7171);
-            color: rgb(240, 19, 19);
+            background: linear-gradient(90deg, #f8dada, #bb7171);
+            color: rgb(0, 0, 0);
             border: none;
             padding: 0.6rem 1rem;
             border-radius: 20px;
@@ -167,7 +169,7 @@
             padding: 0.75rem 1rem;
             border-bottom: 1px solid #e9ecef;
             font-weight: bold;
-            color: #2E8B57;
+            color: #1363DF;
             font-size: 1rem;
         }
         
@@ -196,7 +198,7 @@
         
         .faq-question.active {
             background-color: #e8f5e8;
-            color: #2E8B57;
+            color: #1363DF;
         }
         
         .faq-icon {
@@ -229,11 +231,11 @@
         
         .faq-sub-item:hover {
             background-color: #e9ecef;
-            border-left-color: #2E8B57;
+            border-left-color: #1363DF;
         }
         
         .footer {
-            background: #2E8B57;
+            background: #1363DF;
             color: white;
             text-align: center;
             padding: 0.75rem;
@@ -253,7 +255,7 @@
             width: 16px;
             height: 16px;
             border: 2px solid #f3f3f3;
-            border-top: 2px solid #2E8B57;
+            border-top: 2px solid #1363DF;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-right: 8px;
@@ -291,8 +293,7 @@
     <div class="chatbot-container">
         <!-- Chat Header -->
         <div class="chat-header">
-            <h2>🤖 ECO Matrix AI</h2>
-            <p>Energy Modeling Assistant</p>
+            <h2>🤖 ECO Matrix AI Assistant</h2>
         </div>
         
         <!-- Chat Section -->
@@ -461,7 +462,7 @@
         
         <!-- Footer -->
         <div class="footer">
-            © 2025 ECO Matrix Solutions
+            © 2025 ECO Matrix Solutions <a href="https://ecomatrix.io/contact-us/" style="color: #ffffff;"> Contact us </a>
         </div>
     </div>
     
@@ -740,7 +741,7 @@ function getFAQResponse(message) {
     "Ask for sample reports": "**Sample Reports:**\n\nWe don’t share full reports, but. We do not provide full sample reports to protect client confidentiality, but can offer insights in a meeting and are happy to explain our methodology or present anonymized extracts in meetings.",
     "Schedule a technical meeting": "**Schedule Meeting:**\n\nEmail 📧 anup@ecomatrix.io time with a simulation expert.",
     "Discuss timelines, pricing & deliverables": "**Timelines & Pricing:**\n\nDirect all inquiries to 📧 anup@ecomatrix.io.",
-    "Contact Information": "**Contact ECO Matrix:**\n\n📧 anup@ecomatrix.io\n📞 9322737166\n🌐 [ecomatrix.io](https://ecomatrix.io)",
+    "Contact Information": "**Contact ECO Matrix:**\n\n📧 anup@ecomatrix.io\n📞 9322737166\n🌐 <a href='https://ecomatrix.io/'>ecomatrix.io</a> ",
     "Pricing Information": "**Pricing:**\n\nPricing depends on project scope, complexity, and timeline. Contact us for a detailed proposal.",
     "Technical Support": "**Technical Support:**\n\nWe provide ongoing support for all modeling and consulting engagements.",
     "Company Info": "**About ECO Matrix:**\n\nECO Matrix Solutions provides high-quality energy modeling and simulation services to support energy-efficient building design and regulatory compliance. We serve clients in Canada, the US, and India, with deep expertise in advanced building performance analysis tools and methods.",
