@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Widget</title>
+    <style>
+        /* Floating Chatbot Styles */
+        .chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 40px;
+            z-index: 9999;
+            font-family: Arial, sans-serif;
+        }
+
+        .chat-toggle {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            border: none;
+            outline: none;
+        }
+
+        .chat-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.4);
+        }
+          .ai-label {
+            position: absolute;
+            bottom: 75px;
+            right: 50%;
+            transform: translateX(50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .ai-label.hidden {
+            opacity: 0;
+        }
+        .chat-widget {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 350px;
+            height: 630px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+            transform: translateY(20px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .chat-widget.active {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+    
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-iframe {
+            width: 100%;
+            height: calc(100% - 5px);
+            border: none;
+            background: #f8f9fa;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .chat-widget {
+                width: 320px;
+                height: 450px;
+                bottom: 80px;
+                right: 10px;
+            }
+            
+            .chatbot-container {
+                bottom: 15px;
+                right: 15px;
+            }
+            .ai-label {
+                bottom: 70px;
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .chat-widget {
+                width: calc(100vw - 20px);
+                height: 400px;
+                right: 10px;
+                left: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chatbot-container">
+        <!-- Chat Toggle Button -->
+        <div class="ai-label">AI Assistant</div>
+        <button class="chat-toggle" onclick="toggleChat()">
+            <span id="toggle-icon">💬</span>
+        </button>
+
+        <!-- Chat Widget -->
+        <div class="chat-widget" id="chatWidget">
+            
+            <!-- Replace this iframe src with your actual chatbot URL -->
+            <iframe class="chat-iframe" src="https://eco-chatbot.netlify.app/code.html" title="Chatbot"></iframe>
+        </div>
+    </div>
+
+    <script>
+        let isOpen = false;
+        
+        function toggleChat() {
+            const widget = document.getElementById('chatWidget');
+            const icon = document.getElementById('toggle-icon');
+            
+            if (isOpen) {
+                closeChat();
+            } else {
+                openChat();
+            }
+        }
+        
+        function openChat() {
+            const widget = document.getElementById('chatWidget');
+            const icon = document.getElementById('toggle-icon');
+            const label = document.querySelector('.ai-label');
+            
+            widget.classList.add('active');
+            icon.textContent = '×';
+            label.classList.add('hidden');
+            isOpen = true;
+        }
+        
+        function closeChat() {
+            const widget = document.getElementById('chatWidget');
+            const icon = document.getElementById('toggle-icon');
+            const label = document.querySelector('.ai-label');
+            
+            widget.classList.remove('active');
+            icon.textContent = '💬';
+            label.classList.remove('hidden');
+            isOpen = false;
+        }
+        
+        // Close chat when clicking outside
+        document.addEventListener('click', function(event) {
+            const container = document.querySelector('.chatbot-container');
+            if (!container.contains(event.target) && isOpen) {
+                closeChat();
+            }
+        });
+    </script>
+</body>
+</html>
